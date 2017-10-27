@@ -1,0 +1,133 @@
+<div class="mk-picker-controls">
+	<span (click)="selectMinutes(60)" class="minute-quick-select" [ngClass]="{'active-quick-select': minutes == 60}">
+		1h
+	</span>
+	<span (click)="selectMinutes(180)" class="minute-quick-select" [ngClass]="{'active-quick-select': minutes == 180}">
+		3h
+	</span>
+	<span (click)="selectMinutes(720)" class="minute-quick-select" [ngClass]="{'active-quick-select': minutes == 720}">
+		12h
+	</span>
+	<span (click)="selectMinutes(1440)" class="minute-quick-select" [ngClass]="{'active-quick-select': minutes == 1440}">
+		1d
+	</span>
+	<span (click)="selectMinutes(4320)" class="minute-quick-select" [ngClass]="{'active-quick-select': minutes == 4320}">
+		3d
+	</span>
+	<span (click)="selectMinutes(10080)" class="minute-quick-select" [ngClass]="{'active-quick-select': minutes == 10080}">
+		1w
+	</span>
+	<span (click)="showCustomDropdown = !showCustomDropdown" class="minute-quick-select" [ngClass]="{'active-quick-select': [60,180,720,1440,4320,10080].indexOf(minutes) < 0 || showCustomDropdown}">
+		custom ⌄
+	</span>
+</div>
+<div *ngIf="showCustomDropdown" class="mk-picker-dropdown">
+	<div>
+		<span [ngClass]="{'picker-type-active':pickerType == 'absolute'}" (click)="pickerType = 'absolute'">Absolute</span>
+		<span [ngClass]="{'picker-type-active':pickerType == 'relative'}" (click)="pickerType = 'relative'">Relative</span>
+	</div>
+	<div class="mk-calendar-holder" *ngIf="pickerType == 'absolute'">
+		<div>
+			<span (click)="shiftCal(1)" class="mk-arrow" style="float:left;">⮈</span>
+			<span (click)="shiftCal(-1)" class="mk-arrow" style="float:right">⮊</span>
+			<span style="display:inline-block"></span>
+		</div>
+		<br>
+
+		<div class="mk-calendar">
+			<div>{{getMonthName(1)}}</div>
+			<div *ngFor="let dayName of dayNames" class="mk-calendar-day-name">
+				{{dayName}}
+			</div>
+			<div *ngFor="let calDate of leftCalDates" [ngClass]="{'mk-calendar-day-box': calDate.isInMonth, 'mk-empty-calendar-day-box': !calDate.isInMonth}">
+				<div *ngIf="calDate.isInMonth" class="mk-day-box" (click)="dateSelected(calDate)" [ngClass]="{'day-selected': isSelected(calDate), 'range-selected': isBetween(calDate)}" (mouseenter)="dateHover(calDate)">
+					{{calDate.dayOfMonth|number}}
+				</div>
+			</div>
+		</div>
+		<div class="mk-calendar">
+			<div>{{getMonthName(0)}}</div>
+			<div *ngFor="let dayName of dayNames" class="mk-calendar-day-name">
+				{{dayName}}
+			</div>
+			<div *ngFor="let calDate of rightCalDates" class="mk-calendar-day-box" [ngClass]="{'mk-calendar-day-box': calDate.isInMonth, 'mk-empty-calendar-day-box': !calDate.isInMonth}">
+				<div *ngIf="calDate.isInMonth" class="mk-day-box" (click)="dateSelected(calDate)" [ngClass]="{'day-selected': isSelected(calDate), 'range-selected': isBetween(calDate)}" (mouseenter)="dateHover(calDate)">
+					{{calDate.dayOfMonth|number}}
+				</div>
+			</div>
+		</div>
+		<div class="mk-date-text-row">
+			<div>
+				<div *ngIf="startDate">
+					<b>Start Date </b>
+					{{startDate.fullDate}}
+					<input [(ngModel)]="startTime">
+				</div>
+				<div *ngIf="endDate">
+					<b>End Date </b>
+					{{endDate.fullDate}}
+					<input [(ngModel)]="endTime">
+				</div>
+				<div *ngIf="!endDate">
+					Select another date
+				</div>
+			</div>
+		</div>
+
+		<button (click)="applyDateRange()" [disabled]="!validDates()">Apply</button>
+		<button (click)="showCustomDropdown = false">Cancel</button>
+	</div>
+	<div *ngIf="pickerType == 'relative'">
+		<div class="minute-select-holder">
+			<div class="minute-select-box-label">
+				Minutes 
+			</div>
+			<div class="minute-select-box" [ngClass]="{'active':minutes == 1}" (click)="selectMinutes(1)">1</div>
+			<div class="minute-select-box" [ngClass]="{'active':minutes == 3}" (click)="selectMinutes(3)">3</div>
+			<div class="minute-select-box" [ngClass]="{'active':minutes == 5}" (click)="selectMinutes(5)">5</div>
+			<div class="minute-select-box" [ngClass]="{'active':minutes == 15}" (click)="selectMinutes(15)">15</div>
+			<div class="minute-select-box" [ngClass]="{'active':minutes == 30}" (click)="selectMinutes(30)">30</div>
+			<div class="minute-select-box" [ngClass]="{'active':minutes == 45}" (click)="selectMinutes(45)">45</div>
+		</div>
+		<div>
+			<div class="minute-select-box-label">
+				Hours 
+			</div>
+			<div class="minute-select-box"  [ngClass]="{'active':minutes == 60}" (click)="selectMinutes(60)">1</div>
+			<div class="minute-select-box"  [ngClass]="{'active':minutes == 120}" (click)="selectMinutes(120)">2</div>
+			<div class="minute-select-box"  [ngClass]="{'active':minutes == 180}" (click)="selectMinutes(180)">3</div>
+			<div class="minute-select-box"  [ngClass]="{'active':minutes == 360}" (click)="selectMinutes(360)">6</div>
+			<div class="minute-select-box"  [ngClass]="{'active':minutes == 480}" (click)="selectMinutes(480)">8</div>
+			<div class="minute-select-box"  [ngClass]="{'active':minutes == 720}" (click)="selectMinutes(720)">12</div>
+		</div>
+		<div>
+			<div class="minute-select-box-label">
+				Days 
+			</div>
+			<div class="minute-select-box"  [ngClass]="{'active':minutes == 1440}" (click)="selectMinutes(1440)">1</div>
+			<div class="minute-select-box"  [ngClass]="{'active':minutes == 2880}" (click)="selectMinutes(2880)">2</div>
+			<div class="minute-select-box"  [ngClass]="{'active':minutes == 4320}" (click)="selectMinutes(4320)">3</div>
+			<div class="minute-select-box"  [ngClass]="{'active':minutes == 5760}" (click)="selectMinutes(5760)">4</div>
+			<div class="minute-select-box"  [ngClass]="{'active':minutes == 7200}" (click)="selectMinutes(7200)">5</div>
+			<div class="minute-select-box"  [ngClass]="{'active':minutes == 8640}" (click)="selectMinutes(8640)">6</div>
+		</div>
+		<div>
+			<div class="minute-select-box-label">
+				Weeks
+			</div>
+			<div class="minute-select-box"  [ngClass]="{'active':minutes == 10080}" (click)="selectMinutes(10080)">1</div>
+			<div class="minute-select-box"  [ngClass]="{'active':minutes == 20160}" (click)="selectMinutes(20160)">2</div>
+			<div class="minute-select-box"  [ngClass]="{'active':minutes == 40320}" (click)="selectMinutes(40320)">4</div>
+			<div class="minute-select-box"  [ngClass]="{'active':minutes == 60480}" (click)="selectMinutes(60480)">6</div>
+		</div>
+		<div>
+			<div class="minute-select-box-label">
+				Months
+			</div>
+			<div class="minute-select-box"  [ngClass]="{'active':minutes == 129600}" (click)="selectMinutes(129600)">3</div>
+			<div class="minute-select-box"  [ngClass]="{'active':minutes == 259200}" (click)="selectMinutes(259200)">6</div>
+			<div class="minute-select-box"  [ngClass]="{'active':minutes == 518400}" (click)="selectMinutes(518400)">12</div>
+			<div class="minute-select-box"  [ngClass]="{'active':minutes == 648000}" (click)="selectMinutes(648000)">15</div>
+		</div>
+	</div>
+</div>
